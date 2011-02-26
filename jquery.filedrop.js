@@ -162,8 +162,7 @@
 						opts.error(errors[2], files[i]);
 						return false;
 					}
-					
-					reader.addEventListener("loadend", send, false);
+					reader.onloadend = send;
 					reader.readAsBinaryString(files[i]);
 				} else {
 					filesRejected++;
@@ -208,7 +207,7 @@
 			xhr.setRequestHeader('content-type', 'multipart/form-data; boundary=' 
 			    + boundary);
 			    
-			xhr.sendAsBinary(builder);  
+			xhr.send(builder);  
 			
 			opts.uploadStarted(index, file, files_count);  
 			
