@@ -1,7 +1,7 @@
 /*
  * Default text - jQuery plugin for html5 dragging files from desktop to browser
  *
- * Author: Weixi Yen
+ * Author: Matt Copperwaite, based on script by Weixi Yen
  *
  * Email: [Firstname][Lastname]@gmail.com
  * 
@@ -22,7 +22,11 @@
  * Usage:
  * 	See README at project homepage
  *
- */
+ * Matt Copperwaite Changes:
+ * 	Changed to be more browser compatible.
+ * 	Using guide from: http://code.google.com/p/html5uploader/wiki/HTML5Uploader
+*/
+
 (function($){
     
 	var opts = {},
@@ -58,9 +62,11 @@
 	$.fn.filedrop = function(options) {
 		opts = $.extend( {}, default_opts, options );
 		
+		// add event handlers for selected object
 		this.get(0).addEventListener("drop", drop, true);
 		this.bind('dragenter', dragEnter).bind('dragover', dragOver).bind('dragleave', dragLeave);
 		
+		// add event handlers for window
 		document.addEventListener("drop", docDrop, true);
 		$(document).bind('dragenter', docEnter).bind('dragover', docOver).bind('dragleave', docLeave);
 	};
@@ -84,7 +90,7 @@
 			builder += dashdash;
 			builder += boundary;
 			builder += crlf;
-			builder += 'Content-Disposition: form-data; name="'+i+'"';
+			builder += 'Content-Disposition: form-data; name="' + i + '"';
 			builder += crlf;
 			builder += crlf;
 			builder += val;
@@ -162,12 +168,22 @@
 						opts.error(errors[2], files[i]);
 						return false;
 					}
-					reader.onloadend = send;
+					// Firefox 3.6, WebKit
+                    if(reader.addEventListener) {
+                        reader.addEventListener('loadend', send, false);
+                    }
+                    else {
+                        // Chrome
+                        reader.onloadend = send;
+                    }
+                    
 					reader.readAsBinaryString(files[i]);
-				} else {
+				}
+				else {
 					filesRejected++;
 				}
-			} catch(err) {
+			}
+			catch(err) {
 				opts.error(errors[0]);
 				return false;
 			}
@@ -191,7 +207,8 @@
 			newName = rename(file.name);
 			if (typeof newName === "string") {
 				builder = getBuilder(newName, e.target.result, boundary);
-			} else {
+			}
+			else {
 				builder = getBuilder(file.name, e.target.result, boundary);
 			}
 			
@@ -201,17 +218,35 @@
 			upload.currentStart = start_time;
 			upload.currentProgress = 0;
 			upload.startData = 0;
-			upload.addEventListener("progress", progress, false);
+			if (status) {
+			    if (reader.addEventListener) {
+			        // Firefox 3.6, WebKit
+    			    upload.addEventListener("progress", progress, false);
+    			}
+    			else {
+    			    // Chrome
+    			    reader.onprogress = progress;
+    			}
+			}
+			
 			
 			xhr.open("POST", opts.url, true);
-			xhr.setRequestHeader('content-type', 'multipart/form-data; boundary=' 
-			    + boundary);
-			    
-			xhr.send(builder);  
+			xhr.setRequestHeader('UP-FILENAME', file.name);
+			xhr.setRequestHeader('UP-SIZE', file.size);
+			xhr.setRequestHeader('UP-TYPE', file.type);
+			xhr.setRequestHeader('content-type', 'multipart/form-data; boundary=' + boundary);
+			
+			if(xhr.sendAsBinary != null) {
+			    xhr.send(builder);
+			}
+			else {
+			    // i suspect this will not work as reader is not global
+                xhr.send(window.btoa(reader.result));
+            }
 			
 			opts.uploadStarted(index, file, files_count);  
 			
-			xhr.onload = function() { 
+			xhr.onload = function() {
 			    if (xhr.responseText) {
 				var now = new Date().getTime(),
 				    timeDiff = now - start_time,
