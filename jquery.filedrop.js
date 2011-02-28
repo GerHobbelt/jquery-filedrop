@@ -236,13 +236,7 @@
 			xhr.setRequestHeader('UP-TYPE', file.type);
 			xhr.setRequestHeader('content-type', 'multipart/form-data; boundary=' + boundary);
 			
-			if(xhr.sendAsBinary != null) {
-			    xhr.send(builder);
-			}
-			else {
-			    // i suspect this will not work as reader is not global
-                xhr.send(window.btoa(reader.result));
-            }
+			xhr.send(builder);
 			
 			opts.uploadStarted(index, file, files_count);  
 			
