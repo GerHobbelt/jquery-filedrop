@@ -229,14 +229,13 @@
     			}
 			}
 			
-			
 			xhr.open("POST", opts.url, true);
 			xhr.setRequestHeader('UP-FILENAME', file.name);
 			xhr.setRequestHeader('UP-SIZE', file.size);
 			xhr.setRequestHeader('UP-TYPE', file.type);
 			xhr.setRequestHeader('content-type', 'multipart/form-data; boundary=' + boundary);
 			
-			xhr.send(builder);
+			xhr.sendAsBinary(builder);
 			
 			opts.uploadStarted(index, file, files_count);  
 			
@@ -256,7 +255,7 @@
 	}
     
 	function getIndexBySize(size) {
-		for (var i=0; i < filesCount; i++) {
+		for (var i=0; i < files_count; i++) {
 			if (files[i].size == size) {
 				return i;
 			}
@@ -323,5 +322,17 @@
 	}
 	 
 	function empty(){}
+	
+	try {
+		if (XMLHttpRequest.prototype.sendAsBinary) return;
+		XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
+		    function byteValue(x) {
+		        return x.charCodeAt(0) & 0xff;
+		    }
+		    var ords = Array.prototype.map.call(datastr, byteValue);
+		    var ui8a = new Uint8Array(ords);
+		    this.send(ui8a.buffer);
+		}
+	} catch(e) {}
      
 })(jQuery);
