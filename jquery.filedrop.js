@@ -83,39 +83,28 @@
 	function getBuilder(filename, filedata, boundary) {
 		var dashdash = '--',
 			crlf = '\r\n',
-			builder = '';
+			builder = [];
 
 		$.each(opts.data, function(i, val) {
 	    	if (typeof val === 'function') val = val();
-			builder += dashdash;
-			builder += boundary;
-			builder += crlf;
-			builder += 'Content-Disposition: form-data; name="' + i + '"';
-			builder += crlf;
-			builder += crlf;
-			builder += val;
-			builder += crlf;
+			builder.push(dashdash, boundary, crlf);
+			builder.push('Content-Disposition: form-data; name="', i, '"');
+			builder.push(crlf, crlf, val, crlf);
 		});
 		
-		builder += dashdash;
-		builder += boundary;
-		builder += crlf;
-		builder += 'Content-Disposition: form-data; name="'+opts.paramname+'"';
-		builder += '; filename="' + filename + '"';
-		builder += crlf;
+		builder.push(dashdash, boundary, crlf);
+		builder.push('Content-Disposition: form-data; name="');
+        builder.push(opts.paramname, '"');
+		builder.push('; filename="', filename, '"');
+		builder.push(crlf);
 		
-		builder += 'Content-Type: application/octet-stream';
-		builder += crlf;
-		builder += crlf; 
+		builder.push('Content-Type: application/octet-stream');
+		builder.push(crlf, crlf); 
 		
-		builder += filedata;
-		builder += crlf;
+		builder.push(filedata, crlf);
         
-		builder += dashdash;
-		builder += boundary;
-		builder += dashdash;
-		builder += crlf;
-		return builder;
+		builder.push(dashdash, boundary, dashdash, crlf;
+		return builder.join('');
 	}
 
 	function progress(e) {
