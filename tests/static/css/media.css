@@ -1,0 +1,15 @@
+body {
+    font-size: 80%;
+    font-family: sans-serif;
+}
+
+#dropzone {
+  display: block;
+  width: 30em;
+  height: 20em;
+  background-image: url('../img/bkgnd.png');
+}
+
+#fileover {
+  display: none;
+}

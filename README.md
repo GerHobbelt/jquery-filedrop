@@ -9,8 +9,8 @@ filedrop uses HTML5 FileReader() to read file data.
 Browser Support
 ---------------
 Tested for:
- *  Firefox 4.0
- * Chrome 10
+* Firefox 4.0
+* Chrome 14
 
 filedrop also allows users to define functions to handle the 'BrowserNotSupported' error.
 
@@ -91,5 +91,6 @@ Usage Example
 	
 Contributions
 ---------------
-[Reactor5](http://github.com/Reactor5/) (Brian Hicks) 
-[jpb0104](http://github.com/jpb0104)
+* [Reactor5](http://github.com/Reactor5/) (Brian Hicks) 
+* [jpb0104](http://github.com/jpb0104)
+* [nephics](https://github.com/nephics)
