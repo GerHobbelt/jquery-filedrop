@@ -103,7 +103,7 @@
 		
 		builder.push(filedata, crlf);
         
-		builder.push(dashdash, boundary, dashdash, crlf;
+		builder.push(dashdash, boundary, dashdash, crlf);
 		return builder.join('');
 	}
 
