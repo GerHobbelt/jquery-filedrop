@@ -24,7 +24,11 @@
  * Usage:
  *  See README at project homepage
  *
- */
+ * Matt Copperwaite Changes:
+ * 	Changed to be more browser compatible.
+ * 	Using guide from: http://code.google.com/p/html5uploader/wiki/HTML5Uploader
+*/
+
 ;(function($) {
 
   jQuery.event.props.push("dataTransfer");
@@ -78,7 +82,10 @@
       height: 0
     });
 
+    // add event handlers for selected object
     this.on('drop', drop).on('dragstart', opts.dragStart).on('dragenter', dragEnter).on('dragover', dragOver).on('dragleave', dragLeave);
+
+    // add event handlers for window
     $(document).on('drop', docDrop).on('dragenter', docEnter).on('dragover', docOver).on('dragleave', docLeave);
 
     this.on('click', function(e){
@@ -382,7 +389,13 @@
         upload.currentProgress = 0;
         upload.global_progress_index = global_progress_index;
         upload.startData = 0;
-        upload.addEventListener("progress", progress, false);
+	    if (reader.addEventListener) {
+	        // Firefox 3.6, WebKit
+		    upload.addEventListener("progress", progress, false);
+		} else {
+		    // Chrome
+		    reader.onprogress = progress;
+		}
 
         // Allow url to be a method
         if (jQuery.isFunction(opts.url)) {
@@ -391,6 +404,9 @@
             xhr.open(opts.requestType, opts.url, true);
         }
 
+		xhr.setRequestHeader('X-FileDrop-Filename', file.name);
+		xhr.setRequestHeader('X-FileDrop-Size', file.size);
+		xhr.setRequestHeader('X-FileDrop-Type', file.type);
         xhr.setRequestHeader('content-type', 'multipart/form-data; boundary=' + boundary);
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
