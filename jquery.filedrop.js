@@ -389,12 +389,12 @@
         upload.currentProgress = 0;
         upload.global_progress_index = global_progress_index;
         upload.startData = 0;
-	    if (reader.addEventListener) {
+	    if (upload.addEventListener) {
 	        // Firefox 3.6, WebKit
 		    upload.addEventListener("progress", progress, false);
 		} else {
 		    // Chrome
-		    reader.onprogress = progress;
+		    upload.onprogress = progress;
 		}
 
         // Allow url to be a method

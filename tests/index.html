@@ -3,7 +3,7 @@
     <head>
         <title>Webdesign Start</title>
         <link rel="stylesheet" href="static/css/media.css" />
-        <script type="text/javascript" src="static/js/jquery-1.6.4.min.js"></script>
+        <script type="text/javascript" src="static/js/jquery.js"></script>
         <script type="text/javascript" src="../jquery.filedrop.js"></script>
         <script type="text/javascript">
 $(document).ready(function() {
@@ -12,8 +12,8 @@ $(document).ready(function() {
 	    paramname: 'userfile',          // POST parameter name used on serverside to reference file
 	    data: { 
 	        param1: 'value1',           // send POST variables
-	        param2: function(){
-	            return calculated_data; // calculate data at time of upload
+	        param2: function() {
+	            return 'calculated_data'; // calculate data at time of upload
 	        },
 	    },
 	    error: function(err, file) {
