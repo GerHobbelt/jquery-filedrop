@@ -55,7 +55,7 @@
       afterAll: empty,
       rename: empty,
       error: function(err, file, i, status) {
-        alert(err);
+        alert(file.name + '(#' + i +  ', ' + file.type + '): ' + (status || '???') + ' :: ' + err);
       },
       uploadStarted: empty,
       uploadFinished: empty,
@@ -81,7 +81,7 @@
     this.on('drop', drop).on('dragstart', opts.dragStart).on('dragenter', dragEnter).on('dragover', dragOver).on('dragleave', dragLeave);
     $(document).on('drop', docDrop).on('dragenter', docEnter).on('dragover', docOver).on('dragleave', docLeave);
 
-    this.on('click', function(e){
+    this.on('click', function (e) {
       $('#' + opts.fallback_id).trigger(e);
     });
 
@@ -93,8 +93,8 @@
     });
 
     function drop(e) {
-      if( opts.drop.call(this, e) === false ) return false;
-      if(!e.dataTransfer)
+      if (opts.drop.call(this, e) === false) return false;
+      if (!e.dataTransfer)
         return;
       files = e.dataTransfer.files;
       if (files === null || files === undefined || files.length === 0) {
@@ -136,14 +136,14 @@
         });
       }
 
-      if (jQuery.isFunction(paramname)){
+      if (jQuery.isFunction(paramname)) {
         paramname = paramname(filename);
       }
 
       builder += dashdash;
       builder += boundary;
       builder += crlf;
-      builder += 'Content-Disposition: form-data; name="' + (paramname||"") + '"';
+      builder += 'Content-Disposition: form-data; name="' + (paramname || "") + '"';
       builder += '; filename="' + encodeURIComponent(filename) + '"';
       builder += crlf;
 
@@ -192,7 +192,7 @@
 
       var total = 0, index;
       for (index in global_progress) {
-        if(global_progress.hasOwnProperty(index)) {
+        if (global_progress.hasOwnProperty(index)) {
           total = total + global_progress[index];
         }
       }
@@ -210,8 +210,8 @@
       }
 
       if (opts.allowedfiletypes.push && opts.allowedfiletypes.length) {
-        for(var fileIndex = files.length;fileIndex--;) {
-          if(!files[fileIndex].type || $.inArray(files[fileIndex].type, opts.allowedfiletypes) < 0) {
+        for (var fileIndex = files.length; fileIndex--; ) {
+          if (!files[fileIndex].type || $.inArray(files[fileIndex].type, opts.allowedfiletypes) < 0) {
             opts.error(errors[3], files[fileIndex]);
             return false;
           }
@@ -219,16 +219,16 @@
       }
 
       if (opts.allowedfileextensions.push && opts.allowedfileextensions.length) {
-        for(var fileIndex = files.length;fileIndex--;) {
+        for (var fileIndex = files.length;fileIndex--; ) {
           var allowedextension = false;
-          for (i=0;i<opts.allowedfileextensions.length;i++){
-            if (files[fileIndex].name.substr(files[fileIndex].name.length-opts.allowedfileextensions[i].length).toLowerCase()
-                    == opts.allowedfileextensions[i].toLowerCase()
+          for (i = 0; i < opts.allowedfileextensions.length; i++) {
+            if (files[fileIndex].name.substr(files[fileIndex].name.length - opts.allowedfileextensions[i].length).toLowerCase()
+                    === opts.allowedfileextensions[i].toLowerCase()
             ) {
               allowedextension = true;
             }
           }
-          if (!allowedextension){
+          if (!allowedextension) {
             opts.error(errors[8], files[fileIndex]);
             return false;
           }
@@ -262,11 +262,10 @@
 
       // Process an upload, recursive
       var process = function() {
-
         var fileIndex;
 
         if (stop_loop) {
-          return false;
+          return;
         }
 
         // Check to see if are in queue mode
@@ -299,32 +298,30 @@
                 }
               });
               filesRejected++;
-              return true;
+            } else {
+              reader.onerror = function(e) {
+                  switch (e.target.error.code) {
+                      case e.target.error.NOT_FOUND_ERR:
+                          opts.error(errors[4]);
+                          return false;
+                      case e.target.error.NOT_READABLE_ERR:
+                          opts.error(errors[5]);
+                          return false;
+                      case e.target.error.ABORT_ERR:
+                          opts.error(errors[6]);
+                          return false;
+                      default:
+                          opts.error(errors[7]);
+                          return false;
+                  }
+              };
+
+              reader.onloadend = !opts.beforeSend ? send : function (e) {
+                opts.beforeSend(files[fileIndex], fileIndex, function () { send(e); });
+              };
+
+              reader.readAsDataURL(files[fileIndex]);
             }
-
-            reader.onerror = function(e) {
-                switch(e.target.error.code) {
-                    case e.target.error.NOT_FOUND_ERR:
-                        opts.error(errors[4]);
-                        return false;
-                    case e.target.error.NOT_READABLE_ERR:
-                        opts.error(errors[5]);
-                        return false;
-                    case e.target.error.ABORT_ERR:
-                        opts.error(errors[6]);
-                        return false;
-                    default:
-                        opts.error(errors[7]);
-                        return false;
-                };
-            };
-
-            reader.onloadend = !opts.beforeSend ? send : function (e) {
-              opts.beforeSend(files[fileIndex], fileIndex, function () { send(e); });
-            };
-
-            reader.readAsDataURL(files[fileIndex]);
-
           } else {
             filesRejected++;
           }
@@ -403,16 +400,16 @@
           xhr.setRequestHeader(k, v);
         });
 
-          if(!xhr.sendAsBinary){
-              xhr.sendAsBinary = function(datastr) {
-                  function byteValue(x) {
-                      return x.charCodeAt(0) & 0xff;
-                  }
-                  var ords = Array.prototype.map.call(datastr, byteValue);
-                  var ui8a = new Uint8Array(ords);
-                  this.send(ui8a.buffer);
-              }
-          }
+        if (!xhr.sendAsBinary) {
+            xhr.sendAsBinary = function(datastr) {
+                function byteValue(x) {
+                    return x.charCodeAt(0) & 0xff;
+                }
+                var ords = Array.prototype.map.call(datastr, byteValue);
+                var ui8a = new Uint8Array(ords);
+                this.send(ui8a.buffer);
+            }
+        }
           
         xhr.sendAsBinary(builder);
 
@@ -422,47 +419,46 @@
         opts.uploadStarted(index, file, files_count);
 
         xhr.onload = function() {
-            var serverResponse = null;
+          var serverResponse = null;
 
-            if (xhr.responseText) {
-              try {
-                serverResponse = jQuery.parseJSON(xhr.responseText);
-              }
-              catch (e) {
-                serverResponse = xhr.responseText;
-              }
+          if (xhr.responseText) {
+            try {
+              serverResponse = jQuery.parseJSON(xhr.responseText);
             }
-
-            var now = new Date().getTime(),
-                timeDiff = now - start_time,
-                result = opts.uploadFinished(index, file, serverResponse, timeDiff, xhr);
-            filesDone++;
-
-            // Remove from processing queue
-            processingQueue.forEach(function(value, key) {
-              if (value === fileIndex) {
-                processingQueue.splice(key, 1);
-              }
-            });
-
-            // Add to donequeue
-            doneQueue.push(fileIndex);
-
-            // Make sure the global progress is updated
-            global_progress[global_progress_index] = 100;
-            globalProgress();
-
-            if (filesDone === (files_count - filesRejected)) {
-              afterAll();
+            catch (e) {
+              serverResponse = xhr.responseText;
             }
-            if (result === false) {
-              stop_loop = true;
-            }
+          }
 
+          var now = new Date().getTime(),
+              timeDiff = now - start_time,
+              result = opts.uploadFinished(index, file, serverResponse, timeDiff, xhr);
+          filesDone++;
+
+          // Remove from processing queue
+          processingQueue.forEach(function(value, key) {
+            if (value === fileIndex) {
+              processingQueue.splice(key, 1);
+            }
+          });
+
+          // Add to donequeue
+          doneQueue.push(fileIndex);
+
+          // Make sure the global progress is updated
+          global_progress[global_progress_index] = 100;
+          globalProgress();
+
+          if (filesDone === (files_count - filesRejected)) {
+            afterAll();
+          }
+          if (result === false) {
+            stop_loop = true;
+          }
 
           // Pass any errors to the error option
           if (xhr.status < 200 || xhr.status > 299) {
-            opts.error(xhr.statusText, file, fileIndex, xhr.status);
+            opts.error(xhr.statusText, file, fileIndex, xhr.status, xhr);
           }
         };
       };
@@ -539,6 +535,14 @@
         };
       })(this), 200);
     }
+
+    this.filedropInfo = function () {
+      return {
+        files: files,
+        filecount: files_count,
+        options: opts
+      };
+    };
 
     return this;
   };

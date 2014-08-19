@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Example</title>
+    <link href="static/css/site.css" rel="stylesheet" type="text/css">
+    <script src="static/js/jquery.js" type="text/javascript"></script>
+    <script src="../jquery.filedrop.js" type="text/javascript"></script>
+    <style type="text/css">
+#dropZone 
+{
+    background: gray;
+    border: black dashed 3px;
+    width: 200px;
+    padding: 50px;
+    text-align: center;
+    color: white;
+}
+
+#dropZone.over 
+{
+    background: blue;
+}
+    </style>
+<body>
+    <script type="text/javascript">
+        $(function () {
+            var $el = $('#dropZone');
+            var filecount_uploaded = 0;
+
+            $el.filedrop({
+                url: 'upload/receive.php',
+                paramname: 'files',
+                maxFiles: 5,
+                dragOver: function () {
+                    $el.addClass('over');
+                },
+                dragLeave: function () {
+                    $el.removeClass('over');
+                },
+                drop: function () {
+                    $el.removeClass('over');
+                },
+                afterAll: function () {
+                    var info = $el.filedropInfo();
+                    $el.html((info.filecount === filecount_uploaded ? 
+                        'The' : 
+                        filecount_uploaded === 0 ? 
+                            'None of the' : 
+                            '' + filecount_uploaded + ' out of ' + info.filecount + ' '
+                        ) + ' file(s) have been uploaded successfully!');
+                    // reset counters for the next run:
+                    filecount_uploaded = 0;
+                },
+                uploadFinished: function (i, file, response, time) {
+                    $('#uploadResult').append('<li>' + file.name + ': ' + response + '</li>');
+                    filecount_uploaded++;
+                }
+            });
+        });
+    </script>
+
+    <h2>File Drag &amp; Drop Upload Demo</h2>
+    <div id="dropZone">Drop your files here</div>
+    <br>
+    Uploaded Files:
+    <ul id="uploadResult">
+            
+    </ul>
+</body>
+</html>
